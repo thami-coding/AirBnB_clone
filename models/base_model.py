@@ -22,12 +22,21 @@ class BaseModel:
         self.updated_at = datetime.now()
 
     def __str__(self):
-        return "[{}] ({}) {}".format(type(self).__name__, self.id, self.__dict__)
+        cls_name = type(self).__name__
+        return "[{}] ({}) {}".format(cls_name, self.id, self.__dict__)
 
     def save(self):
+        """
+        updates the public instance attribute
+        updated_at with the current datetime
+        """
         self.updated_at = datetime.now()
 
     def to_dict(self):
+        """
+        returns a dictionary containing all
+        keys/values of __dict__ of the instance
+        """
         dictionary = {}
         for k, v in self.__dict__.items():
             if type(v) == datetime:
