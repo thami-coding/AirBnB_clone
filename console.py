@@ -7,6 +7,7 @@ command interpreter
 
 
 import cmd
+from models.base_model import BaseModel
 
 
 class HBNBCommand(cmd.Cmd):
@@ -23,11 +24,18 @@ class HBNBCommand(cmd.Cmd):
 
     def do_EOF(self, line):
         """Exit program"""
+        print()
         return True
 
     def emptyline(self):
         """dont exceute previous command"""
         pass
+
+    def do_create(self, arg):
+        if arg == 'BaseModel':
+            base_model = BaseModel()
+            base_model.save()
+            print(base_model.id)
 
 
 if __name__ == '__main__':
