@@ -10,17 +10,23 @@ import cmd
 
 
 class HBNBCommand(cmd.Cmd):
+    """
+    HBNBCommand
+    contains the entry point of the
+    command interpreter
+    """
     prompt = "(hbnb) "
 
     def do_quit(self, arg):
-        "Quit command to exit the program\n"
+        """Quit command to exit the program\n"""
         return True
 
     def do_EOF(self, line):
-        "Exit program"
+        """Exit program"""
         return True
 
     def emptyline(self):
+        """dont exceute previous command"""
         pass
 
 
