@@ -49,8 +49,6 @@ class FileStorage:
         <obj class name>.id
         """
         key = type(obj).__name__ + '.' + obj.id
-        obj.created_at = datetime.isoformat(obj.created_at)
-        obj.updated_at = datetime.isoformat(obj.updated_at)
         self.__objects[key] = obj.__dict__
 
     def save(self):
@@ -58,10 +56,15 @@ class FileStorage:
         serializes __objects to the JSON
         file (path: __file_path)
         """
-        objcts = self.__objects
+        objects = self.__objects
+        for _, val in objects.items():
+            for k, v in val.items():
+                if type(v) == datetime:
+                    val[k] = datetime.isoformat(v)
+
         filename = self.__file_path
         with open(filename, 'w', encoding="utf-8") as f:
-            json.dump(objcts, f)
+            json.dump(objects, f)
 
     def reload(self):
         """
