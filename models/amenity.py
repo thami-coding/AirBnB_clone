@@ -3,7 +3,7 @@
 module for all the amenity
 """
 
-from base_model import BaseModel
+from models.base_model import BaseModel
 
 
 class Amenity(BaseModel):
