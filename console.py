@@ -9,6 +9,7 @@ command interpreter
 import cmd
 import json
 from models.base_model import BaseModel
+from models.user import User
 from os.path import exists
 
 
@@ -19,6 +20,35 @@ def isfloat(num):
         return True
     except ValueError:
         return False
+
+
+def check_cls(cls):
+    """Checks if the user entered a valid class"""
+    if cls == 'BaseModel':
+        return True
+    elif cls == 'User':
+        return True
+    else:
+        return False
+
+
+def create_model(arg, **kwargs):
+    """createa a new model based on the class entered"""
+    args = arg.split()
+    cls_name = ""
+    if len(args) > 0:
+        cls_name = args[0]
+    if cls_name != 'User':
+        if kwargs and kwargs['__class__'] == 'BaseModel':
+            return BaseModel(**kwargs)
+        elif cls_name == 'BaseModel':
+            return BaseModel()
+
+    if cls_name != 'BaseModel':
+        if kwargs and kwargs['__class__'] == 'User':
+            return User(**kwargs)
+        elif cls_name == 'User':
+            return User()
 
 
 class HBNBCommand(cmd.Cmd):
@@ -45,7 +75,7 @@ class HBNBCommand(cmd.Cmd):
         """
         pass
 
-#
+# ----------------------------------do methods----------------------------------------------
     def do_create(self, arg):
         """
         Creates a new instance of
@@ -53,12 +83,12 @@ class HBNBCommand(cmd.Cmd):
         saves it (to the JSON file)
         and prints the id
         """
-        if arg == 'BaseModel':
-            base_model = BaseModel()
-            base_model.save()
-            print(base_model.id)
-        elif len(arg) == 0:
+        if len(arg) == 0:
             print("** class name missing **")
+        elif check_cls(arg.split()[0]):
+            model = create_model(arg)
+            model.save()
+            print(model.id)
         else:
             print("** class doesn't exist **")
 
@@ -73,11 +103,11 @@ class HBNBCommand(cmd.Cmd):
 
         if arg_len == 0:
             print("** class name missing **")
-        elif arg_len == 1 and arg != "BaseModel":
+        elif not check_cls(arg_list[0]):
             print("** class doesn't exist **")
         elif arg_len == 1:
             print("** instance id missing **")
-        elif arg_len == 2 and arg_list[0] == 'BaseModel':
+        elif arg_len == 2 and check_cls(arg_list[0]):
             cls_name, cls_id = arg_list
             cls_name_id = "{}.{}".format(cls_name, cls_id)
             with open('file.json', 'r', encoding="utf-8") as f:
@@ -86,8 +116,8 @@ class HBNBCommand(cmd.Cmd):
             for key in objects.keys():
                 if key == cls_name_id:
                     dct = objects[key]
-                    base_model = BaseModel(**dct)
-                    print(base_model)
+                    model = create_model(arg, **dct)
+                    print(model)
                     flag = 1
             if not flag:
                 print("** no instance found **")
@@ -103,20 +133,21 @@ class HBNBCommand(cmd.Cmd):
 
         if arg_len == 0:
             print("** class name missing **")
-        elif arg_list[0] != "BaseModel":
+        elif not check_cls(arg_list[0]):
             print("** class doesn't exist **")
         elif arg_len == 1:
             print("** instance id missing **")
-        elif arg_len == 2 and arg_list[0] == 'BaseModel':
+        elif arg_len == 2 and check_cls(arg_list[0]):
             cls_name, cls_id = arg_list
             cls_name_id = "{}.{}".format(cls_name, cls_id)
             with open('file.json', 'r', encoding="utf-8") as f:
                 objects = json.load(f)
 
-            with open('file.json', 'w', encoding="utf-8") as f:
-                flag = 0
-                for key in list(objects.keys()):
-                    if key == cls_name_id:
+            flag = 0
+            for key in list(objects.keys()):
+                if key == cls_name_id:
+                    with open('file.json', 'w', encoding="utf-8") as f:
+                        print(key)
                         del objects[key]
                         json.dump(objects, f)
                         flag = 1
@@ -131,15 +162,16 @@ class HBNBCommand(cmd.Cmd):
         """
         args = arg.split()
         arg_len = len(args)
-        if arg_len > 0 and args[0] != "BaseModel":
+        print(args[0])
+        if arg_len > 0 and not check_cls(args[0]):
             print("** class doesn't exist **")
         elif exists("file.json"):
             objs_list = []
-            with open('file.json', 'r', encoding="utf-8") as f:
+            with open('file.json', 'r',     encoding="utf-8") as f:
                 objects = json.load(f)
             for key in objects.keys():
-                base_model = BaseModel(**objects[key])
-                objs_list.append(base_model.__str__())
+                model = create_model(arg, **objects[key])
+                objs_list.append(model.__str__())
             print(objs_list)
 
     def do_update(self, arg):
@@ -154,7 +186,7 @@ class HBNBCommand(cmd.Cmd):
 
         if arglen == 0:
             print("** class name missing **")
-        elif args[0] != "BaseModel":
+        elif not check_cls(args[0]):
             print("** class doesn't exist **")
         elif arglen == 1:
             print("** instance id missing **")
@@ -163,7 +195,7 @@ class HBNBCommand(cmd.Cmd):
         elif arglen == 3:
             print("** value missing **")
         else:
-            cls_name, cls_id, email, value = [args[i]for i in range(0, 4)]
+            cls_name, cls_id, attribute, value = [args[i] for i in range(0, 4)]
             if value.isdigit():
                 value = int(value)
             elif isfloat(value):
@@ -178,9 +210,9 @@ class HBNBCommand(cmd.Cmd):
                     if key == cls_name_id:
                         dct = objects[key]
                         del objects[key]
-                        base_model = BaseModel(**dct)
-                        setattr(base_model, email, value)
-                        objects[key] = base_model.to_dict()
+                        model = create_model(arg, **dct)
+                        setattr(type(model), attribute, value)
+                        objects[key] = model.to_dict()
                         flag = 1
                 json.dump(objects, f)
             if not flag:

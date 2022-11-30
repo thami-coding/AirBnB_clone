@@ -23,7 +23,7 @@ class FileStorage:
         """
         returns the dictionary __objects
         """
-        return type(self).__objects
+        return self.__objects
 
     def new(self, obj):
         """
@@ -31,20 +31,20 @@ class FileStorage:
         <obj class name>.id
         """
         key = type(obj).__name__ + '.' + obj.id
-        type(self).__objects[key] = obj.__dict__
+        self.__objects[key] = obj.to_dict()
 
     def save(self):
         """
         serializes __objects to the JSON
         file (path: __file_path)
         """
-        objects = type(self).__objects
+        objects = self.__objects
         for _, val in objects.items():
             for k, v in val.items():
                 if type(v) == datetime:
                     val[k] = datetime.isoformat(v)
 
-        filename = type(self).__file_path
+        filename = self.__file_path
         with open(filename, 'w', encoding="utf-8") as f:
             json.dump(objects, f)
 
@@ -55,7 +55,7 @@ class FileStorage:
         otherwise, do nothing. If the file doesn’t
         exist, no exception should be raised)
         """
-        filename = type(self).__file_path
+        filename = self.__file_path
         if exists(filename):
             with open(filename, 'r+', encoding="utf-8") as f:
-                type(self).__objects = json.load(f)
+                self.__objects = json.load(f)
