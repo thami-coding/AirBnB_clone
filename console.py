@@ -75,7 +75,6 @@ class HBNBCommand(cmd.Cmd):
         """
         pass
 
-# ----------------------------------do methods----------------------------------------------
     def do_create(self, arg):
         """
         Creates a new instance of
