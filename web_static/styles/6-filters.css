@@ -17,6 +17,9 @@ h2 {
   padding: 0;
   margin: 0;
 }
+.amenities li{
+  padding: 10px;
+}
 
 /* spacing filters */
 .popover li ul {
